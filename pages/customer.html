@@ -1,120 +1,243 @@
 <style>
-	.btns {
-		margin-bottom: 5px;
+  .btns{
+    margin-bottom: 10px;
+  }
+	.btn{
+		display:inline-block;/*不占用一行*/
+		padding: .5em 2em;
+		border-radius: 100px  100px;
+		background-color:#333;
+		color:#fff;
+		/*光标移到变手型*/
+		cursor:pointer;
 	}
-	.btn {
-		display: inline-block;
-		padding: .3em 1.2em;
-		border-radius: 3px;
-		border:1px solid #ccc;
-		color: #333;
-		cursor :pointer;
+	table.table{
+	width: 100%;
+	/*box-sizing: border-box;*/
+	border-collapse: collapse;
+	margin-top: 4px;
 	}
-	table.table {
-		box-sizing: border-box;
-		width: 100%;
-		border-collapse: collapse;
+	table.table td,
+	table.table th{
+    border: 1px solid #333;
+    text-align: center;
+    line-height: 1.5em;
 	}
-	table.table td ,
-	table.table th {
-		border: 1px solid #ccc;
-		line-height: 2em;
-		text-align: center;
-	}
-
 	table.table tr.current {
-		background-color: #ededed;
+		background-color:#ededed;
 	}
-
-	.none {
-		display: none;
-	}
-</style>
-<script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
-<script>
-var baseURL = "http://134.175.154.93:6677";
-// 初始化数据
-function initData(){
-	var url = "/customer/findCustomerAll"
-	$.get(baseURL+url,function(response){
-		$("#customer_tbl > tbody").empty();
-		response.data.forEach(function(item){
-			var newTr = $(`<tr>
-				<td><input type="checkbox" value="`+item.id+`"></td>
-				<td>`+item.realname+`</td>
-				<td>`+item.status+`</td>
-				<td>`+item.telephone+`</td>
-				<td>
-					<a class="btn_del" href="javascript:void(0)">删除</a>
-					<a class="btn_upd" href="javascript:void(0)">修改</a>
-				</td>
-			</tr>`);
-			$("#customer_tbl > tbody").append(newTr);
-		});
-	});
-}
-
-$(function(){
-	// 初始化加载
-	initData();
-	// 为删除按钮绑定事件
-	$("#customer_tbl > tbody").on("click","a",function(){
-		switch(this.className){
-			case "btn_del":
-				alert("del");
-				var id = $(this).parents("tr").find("input").val()
-				break;
-			case "btn_upd":
-				alert("upd");
-				break;
-		}
-	})
-
-
-
-})
-</script>
-<div class="customer">
+    .none{
+    	display: none;
+    }
+	</style>
+</head>
+<body>
 	<div class="btns">
 		<div class="btn" id="btn_add">添加</div>
-		<div class="btn">批量导入</div>
+		<div class="btn">批量添加</div>
+
 		<div class="btn">批量删除</div>
 	</div>
-	<div class="forms">
-		<form action="javascript:void(0)">
-			<input type="hidden" name="id">
-			<table>
-				<tbody>
-					<tr>
-						<td>姓名</td>
-						<td><input type="text" name="realname"></td>
-						<td></td>
-					</tr>
-					<tr>
-						<td>手机号</td>
-						<td><input type="text" name="telephone"></td>
-						<td></td>
-					</tr>
-					<tr>
-						<td><input type="submit" value="保存"></td>
-					</tr>
-				</tbody>
-			</table>
-		</form>
-	</div>
-	<table class="table" id="customer_tbl">
-		<thead>
-			<tr>
-				<th width="60px">编号</th>
-				<th width="200px">姓名</th>
-				<th>头像</th>
-				<th>手机</th>
-				<th width="100px">操作</th>
-			</tr>
-		</thead>
-		<tbody>
-			
-		</tbody>
-	</table>
+  <div class="forms">
+    <form action="javascript:void(0)" id="">
+    <input type="hidden" name="id">
+      <table>
+        <tbody>
+          <tr>
+            <td>姓名</td>
+            <td>
+              <input type="text" name="realname">
+            </td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>手机号</td>
+            <td><input type="text" name="telephone"></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td><input type="submit" value="保存"></td>
+          </tr>
+        </tbody>
+      </table>
+    </form>
+  </div>
+    <table class="table">
+    	<thead>
+    		<tr>
+    			<th width="60px">编号</th>
+    			<th width="400px">姓名</th>
+    			<th>头像</th>
+    			<th>手机</th>
+    			<th>操作</th>
+    		</tr>
+    		<tbody>
+    			<tr class="none">
+    				<td><input type="checkbox"> </td>
+    				<td></td>
+    				<td></td>
+    				<td></td>
+    				<td>
+    					<a class="btn_del" href="javascript:void(0)">删除</a>
+    					<a class="btn_upd" href="javascript:void(0)">修改</a>
+    				</td>
+    			</tr>
+    		</tbody>
+    	</thead>
+    </table>
+     <script>
+     	   var btn_add = document.getElementById("btn_add");
+     	   var tbody = document.getElementsByTagName(
+     	   	"tbody")[1];
 
-</div>
+         var baseURL = "http://134.175.154.93:6677"
+         document.forms[0].onsubmit = function(event){
+         //获取有效值
+         var realname = document.querySelector("input[name=realname]").value;
+         var telephone = document.querySelector("input[name=telephone]").value;
+        var id = document.querySelector("input[name=id]").value;
+         alert(realname+telephone);
+         //与后台进行交互
+         var xhr = new XMLHttpRequest();
+         xhr.open("POST",baseURL+"/customer/saveCustomerOrUpdateCustomer");
+         xhr.responseType = "json";
+         xhr.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
+         var data;
+         if(id){
+          data = "id="+id+"&realname="+realname+"&telephone="+telephone
+         }
+         else{
+          data = "realname="+realname+"&telephone="+telephone
+         }
+         xhr.send(data);
+         xhr.onreadystatechange = function(){
+          if(this.readyState ===4){
+            if(this.status ===200){
+              //刷新数据
+              initData();
+              //提示成功信息
+              alert("保存成功");
+            }
+
+          }
+         }
+         event.preventDefault();
+       }
+         //为删除按钮绑定事件处理函数
+           tbody.onclick = function(event){
+            if(event.target.nodeName ==="A"){
+              switch(event.target.className){
+                  case "btn_del":
+                         //获取当前行id
+                  var id = event.target.parentNode.parentNode.children[0].children[0].value;
+                  alert(id);
+                 //调用ajax删除数据库中的数据
+                 var xhr = new XMLHttpRequest();
+                 xhr.responseType ="json"
+                 xhr.open("post",baseURL+"/customer/deleteCustomerById");
+                 xhr.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
+                 xhr.send("id="+id);
+                 xhr.onreadystatechange = function(){
+                  if(this.readyState ===4){
+                    if(this.status ===200){
+                      console.log(this.response);
+                      if(this.response.status === 200){
+                         //重新查询
+                      initData();
+                      alert("删除成功");
+                    }else{
+                      alert("删除失败");
+                     
+                    }
+                  }
+
+                }
+              }
+              break;
+              case"btn_upd":
+              //将原有信息放到表单中
+            var id = event.target.parentNode.parentNode.children[0].children[0].value;
+            var realname = event.target.parentNode.parentNode.children[1].innerText;
+             var telephone = event.target.parentNode.parentNode.children[3].innerText; 
+              //获取有效值
+             document.querySelector("input[name=realname]").value = realname;
+             document.querySelector("input[name=telephone]").value = telephone;
+              document.querySelector("input[name=id]").value = id;
+              break;
+            }
+           }
+         }
+           //mouseover  光标移到子元素上，支持子元素
+           //mouseout   光标移出元素上，支持子元素
+           //mouseenter  光标移到元素上，不支持子元素
+           //mouseleave   光标移出元素，不支持子元素
+
+           //鼠标放上去当前行添加背景色
+           tbody.onmouseover = function(event){
+           	var target = event.target;
+           	if(target.nodeName == "TD"){
+           		target.parentNode.className = "current"
+           	}
+           }
+            tbody.onmouseout = function(event){
+           	var target = event.target;
+           	if(target.nodeName == "TD"){
+           		target.parentNode.className = ""
+           	}
+           }
+
+     	   //为添加按钮绑定事件处理函数
+     	   btn_add.onclick = function(event){
+     	   // 	//产生一个tr
+     	   // var newTr = tbody.firstElementChild.cloneNode(true);
+     	   // newTr.children[1].innerHTML = "<strong>"+Math.random()+"</strong>";
+     	   // 	newTr.className = "";
+         //  //将一个tr追加到tbody
+     	   // 	tbody.appendChild(newTr);
+         document.querySelector("input[name=realname]").value = "";
+         document.querySelector("input[name=telephone]").value = "";
+         document.querySelector("input[name=id]").value = "";
+     	   }
+
+         initData();
+         //初始化数据
+         function initData(){
+          //通过ajax获取后台数据，然后将数据显示到表格中
+          //实例化
+          var xhr = new XMLHttpRequest();
+          //设置请求行
+          xhr.open("get","http://134.175.154.93:6677/customer/findCustomerAll")
+          //设置请求头
+          xhr.responseType = "json";
+          //设置请求体，并发送
+          xhr.send()
+          //监听响应
+          xhr.onreadystatechange = function(){
+            if(this.readyState === 4){
+              if(this.status === 200){
+                //先将tbody中的数据清空
+                 Array.prototype.slice.call(tbody.children,0).forEach(function(item,index){
+                    if(index!==0){
+                      tbody.removeChild(item);
+                    }
+                 })
+                //遍历结果并渲染
+                this.response.data.forEach(function(item){
+                    //产生一个tr
+               var newTr = tbody.firstElementChild.cloneNode(true);
+               newTr.children[0].children[0].value = item.id;
+               newTr.children[1].innerHTML = "<strong>"+item.realname+"</strong>";
+                newTr.children[2].innerHTML = "<img src=http://134.175.154.93:8888/group1/"+item.photo+">";
+               newTr.children[3].innerHTML = "<strong>"+item.telephone+"</strong>";
+                newTr.className = "";
+                //将一个tr追加到tbody
+                tbody.appendChild(newTr);
+                })
+              }else{
+                alert("接口异常");
+              }
+            }
+          } 
+         }
+     </script>
+</body>
