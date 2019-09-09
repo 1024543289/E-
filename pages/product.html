@@ -1,0 +1,112 @@
+<style>
+	.btns {
+		margin-bottom: 5px;
+	}
+	.btn {
+		display: inline-block;
+		padding: .3em 1.2em;
+		border-radius: 5px;
+		border:1px solid #ccc;
+		color: #333;
+		cursor :pointer;
+	}
+	.btn#btn_add {
+		background-color: #eb5b05;
+		color: #fff;
+		font-weight: bold;
+	}
+	table.table {
+		box-sizing: border-box;
+		width: 100%;
+		border-collapse: collapse;
+	}
+	table.table td ,
+	table.table th {
+		border: 1px solid #ccc;
+		line-height: 2em;
+		text-align: center;
+	}
+
+	table.table tr.current {
+		background-color: #ededed;
+	}
+
+	.none {
+		display: none;
+	}
+</style>
+<!-- 使用cdn引用jQuary -->
+<script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
+<script>
+	var baseURL =  "http://134.175.154.93:6677";
+	//初始化数据
+	function initData(){
+		var url = "/product/findAllProduct";
+		$.get(baseURL+url,function(response){
+			$("#customer_tbl > tbody").empty();
+			console.log(response.data);
+			response.data.forEach(function(item){
+				var newTr = $(`<tr>
+					<td><input type="checkbox" value="`+item.id+`"></td>
+					<td>`+item.name+`</td>
+					<td>`+item.description+`</td>
+					<td>`+item.price+`</td>
+					<td>`+item.status+`</td>
+					<td>
+						<a href="javascript:void(0)" class="btn_dle">删除</a>
+						<a href="javascript:void(0)" class="btn_upd">修改</a>
+					</td>
+				</tr>`);
+				$("#customer_tbl > tbody").append(newTr);
+			});
+		});
+	}
+	initData();
+	//删除事件
+	
+</script>
+
+<div class="customer">
+	<div class="btns">
+		<div class="btn" id="btn_add">添加产品</div>
+		<div class="btn">批量导入</div>
+		<div class="btn">批量删除</div>
+	</div>
+	<div class="forms">
+		<form action="javascript:void(0)">
+			<input type="hidden" name="id">
+			<table>
+				<tbody>
+					<tr>
+						<td>姓名</td>
+						<td><input type="text" name="realname"></td>
+						<td></td>
+					</tr>
+					<tr>
+						<td>手机号</td>
+						<td><input type="text" name="telephone"></td>
+						<td></td>
+					</tr>
+					<tr>
+						<td><input type="submit" value="保存"></td>
+					</tr>
+				</tbody>
+			</table>
+		</form>
+	</div>
+	<table class="table" id="customer_tbl">
+		<thead>
+			<tr>
+				<th width="60px">编号</th>
+				<th width="200px">产品名</th>
+				<th>描述</th>
+				<th width="150px">价格</th>
+				<th width="400px">图片</th>
+				<th width="100px">操作</th>
+			</tr>
+		</thead>
+		<tbody>
+			
+		</tbody>
+	</table>
+</div>
