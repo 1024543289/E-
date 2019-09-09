@@ -1,7 +1,245 @@
-<style></style>
-<script>
-	
-</script>
-<div class="comment">
-	评论管理
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>动态表格</title>
+</head>
+<style>
+    .btns{
+        margin-bottom: 5px;
+    }
+	.btn{
+		display: inline-block;
+		padding: 0.3em 1.2em;
+		border-radius: 3px;
+		background-color: teal;
+		color: #fff;
+		cursor: pointer;
+	}
+	table.table{
+		box-sizing: border-box;
+		width: 100%;
+		border-collapse: collapse;
+	}
+	table.table td ,
+	table.table th {
+		border: 1px solid #ccc;
+		line-height: 2em;
+		text-align: center;
+	}
+	table.table tr.current {
+		background-color: #ededed;
+	}
+	.none {
+		display:none;
+	}
+</style>
+<body>
+<div class="btns">
+	<div class="btn" id="btn_add">添加</div>
+    <div class="btn">批量导入</div>
+    <div class="btn">批量删除</div>
 </div>
+<div class="forms">
+	<form action="javascript:void(0)">
+	    <input type="hidden" name="id">
+		<table>
+			<tbody>
+				<tr>
+					<td>姓名</td>
+					<td><input type="text" name="realname"></td>
+					<td></td>			
+				</tr>
+				<tr>
+				    <td>手机号</td>
+					<td><input type="text" name="telephone"></td>
+					<td></td>
+				</tr>
+				<tr>
+					<td><input type="submit" value="保存"></td>
+				</tr>
+			</tbody>
+		</table>
+	</form>
+</div>
+<table class="table">
+	<thead>
+		<tr>
+			<th width="60px">编号</th>
+			<th width="200px">内容</th>
+			<th>更新时间</th>
+			<th>手机号</th>
+			<th width="100px">操作</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr class="none">
+			<td><input type="checkbox"></td>
+			<td></td>
+			<td></td>
+			<td></td>
+			<td>
+			<a class="btn_del" href="javascript:void(0)">删除</a>
+			<a class="btn_upd" href="javascript：void(0)">修改</a></td>
+		</tr>
+	</tbody>
+</table>
+
+
+	<script>
+	 var btn_add = document.getElementById("btn_add");
+	 var tbody = document.getElementsByTagName("tbody")[1];
+	 var baseURL = "http://134.175.154.93:6677"
+
+	 document.forms[0].onsubmit = function(event){
+	 	//1.校验有效性
+	 	// alert(1);
+	 	//2.获取有效值
+		  var realname = document.querySelector("input[name=content]").value;
+		  var date= document.querySelector("input[name=commentTime]").value;
+		  var date= document.querySelector("input[name=orderId]").value;
+		  var id = document.querySelector("input[name=id]").value;
+	 	//3.与后台进行交互
+	 	var xhr = new XMLHttpRequest();
+	 	xhr.open("post",baseURL+"/comment/insertComment");
+	 	xhr.responseType = "json";
+	 	xhr.setRequestHeader('Content-Type','application/x-www-form-urlencoded')
+        var data;
+	 	if(id){
+	 		data = "id="+id+"&name="+content+"&date="+commentTime;
+	 	}else{
+	 		data = "name="+content+"&telephone="+orderId;
+	 	}
+	 	xhr.send(data);
+        xhr.onreadystatechange = function(){
+        	if (this.readyState === 4) {
+        		if(this.status === 200){
+        			//刷新数据
+        			initData();
+        			//提供成功信息
+        			alert(this.response.message);
+        		}
+        	}
+        }
+	 	event.preventDefault();
+	 }
+	
+	 //为删除按钮/修改按钮绑定事件处理函数       
+    tbody.onclick = function(event){
+    	if(event.target.nodeName === "A"){
+    	switch(event.target.className){
+          case "btn_del":
+		          //0.获取当前的id
+		    	var id = event.target.parentNode.parentNode.children[0].children[0].value;
+
+		    	//1.调用ajax删除数据库中的数据
+		    	var xhr = new XMLHttpRequest();
+		    	xhr.responseType = "json"
+		    	xhr.open("POST",baseURL+"/comment/deleteCommentById");
+		    	xhr.setRequestHeader('Content-Type','application/x-www-form-urlencoded')
+		    	xhr.send("id="+id)
+		    	xhr.onreadystatechange = function(){
+		    		if (this.readyState === 4 ) {
+		    			if (this.status === 200 ) {
+		    				console.log(this.response);
+		    				
+		    				if(this.response.status === 200){
+		    					//2.重新查询
+		    					initData();
+		    				}else{
+		    					alert("删除失败");
+		    				}
+		    			}
+		    		}
+		    	}
+		    	break;
+		   case "btn_upd":
+		    	//1.将原有的信息放到表单中
+		    	 var id = event.target.parentNode.parentNode.children[0].children[0].value;
+		    	 var realname = event.target.parentNode.parentNode.children[1].innerText;
+		    	 var telephone= event.target.parentNode.parentNode.children[3].innerText;
+			     document.querySelector("input[name=name]").value = content;
+		         document.querySelector("input[name=telephone]").value = orderId;
+		          document.querySelector("input[name=date]").value = commentTime;
+		         document.querySelector("input[name=id]").value = id;
+
+		    	 break;
+	       }
+	    }
+	}
+
+    // 鼠标放上去当前行添加背景色
+    tbody.onmouseover = function(event){
+          var target = event.target;
+          if(target.nodeName == "TD"){
+          	target.parentNode.className ="current"
+          }
+    }
+    tbody.onmouseout = function(event){
+          var target = event.target;
+          if(target.nodeName == "TD"){
+          	target.parentNode.className = ""
+          }
+    }
+
+	 /* var btn_dels = document.getElementsByClassName("btn_del");
+	   btn_dels.forEach
+	   for(var i=0;i<btn_dels.length;i++){
+	 	var btn_del = btn_dels[i];
+	 		 	btn_del.onclick = function(){
+	 		 		alert(1);
+	 		 	}
+
+	 }*/
+
+	 //为添加按钮绑定事件处理函数
+	 btn_add.onclick = function(event){
+	        document.querySelector("input[name=name]").value = "";
+		    document.querySelector("input[name=telephone]").value = "";
+		      document.querySelector("input[name=date]").value = "";
+
+		    document.querySelector("input[name=id]").value = "";
+	};
+     initData();
+    //初始化数据
+	function initData(){
+         //通过ajax获取后台数据，然后将数据显示到表格中
+               //1.实例化xhr对象
+                var xhr = new XMLHttpRequest();
+				//2.设置请求行
+				xhr.open("get",baseURL+"/comment/findCommentByOrderId");
+				//3.设置请求头（Content-Type）
+				xhr.responseType = "json";
+				//4.设置请求体，并且发送
+				xhr.send()
+				//5.监听响应
+				xhr.onreadystatechange = function(){
+					if(this.readyState === 4){
+					  if(this.status === 200){
+					  //先将tbody中的数据清空掉
+					  	Array.prototype.slice.call(tbody.children,0).forEach(function(item,index){
+					  		if(index !== 0){
+					  			tbody.removeChild(item);
+					  		}
+					  	})
+					  	//遍历结果，渲染数据
+							this.response.data.forEach(function(item){
+									//产生一个tr
+						 	var newTr = tbody.firstElementChild.cloneNode(true);
+						 	newTr.children[0].children[0].value = item.id;
+						 	newTr.children[1].innerHTML = "<strong>"+item.realname+"</strong>";
+						 	newTr.children[3].innerHTML = "<strong>"+item.telephone+"</strong>";
+						 	newTr.children[2].innerHTML = "<strong>"+item.photo+"</strong>";
+						 	// 将一个tr追加到tbody
+						 	newTr.className = "";
+						 	tbody.appendChild(newTr);
+							})
+						}else{
+							alert("接口异常");
+						}
+					}
+		        }
+	        }
+	</script>
+</body>
+</html>
