@@ -1,7 +1,280 @@
-<style></style>
+<style>
+    .btns {
+        margin-left: 25%;
+        margin-top: 50px;
+    }
+
+    .btn {
+        display: inline-block;
+        padding: .3em 1.2em;
+        border-radius: 3px;
+        background-color: teal;
+        color: #fff;
+        cursor: pointer;
+    }
+
+    .btn:nth-child(3) {
+        background-color: red;
+    }
+
+    table.table {
+        box-sizing: border-box;
+        width: 50%;
+        border-collapse: collapse;
+        margin: 0 auto;
+    }
+
+    table.table td,
+    table.table th {
+        border: 1px solid #ccc;
+        line-height: 2em;
+        text-align: center;
+    }
+
+    table.table tr.current {
+        background: #eeddee;
+    }
+
+    table.table1 {
+        box-sizing: border-box;
+        width: 50%;
+        border-collapse: collapse;
+        margin: 50px auto 0;
+    }
+
+    table.table1 td {
+        border: 1px solid #cccccc;
+        line-height: 3.5em;
+        text-align: center;
+        font-weight: bold;
+    }
+
+    .none {
+        display: none;
+    }
+
+    .heng {
+        width: 50%;
+        height: 4px;
+        border-bottom: 1px solid gray;
+        margin: 30px auto;
+    }
+    .ls > input {
+        width: 80%;
+        height: 2em;
+    }
+    .hh{
+        background-color: #eeddee;
+        color: white;
+    }
+    .table1>tbody>tr>td>input{
+        width: 90%;
+        height: 80%;
+        border-radius: 0.5em;
+    }
+    .table1>tbody>tr:last-child>td>input{
+        width: 60px;
+
+    }
+    .table1>tbody>tr:last-child>td>input:hover{
+        cursor: pointer;
+        background-color: teal;
+
+    }
+</style>
+
+    <div class="btns">
+        <div class="btn" id="btn_add">添加</div>
+        <div class="btn">批量导入</div>
+        <div class="btn">批量删除</div>
+    </div>
+
+    <div class="forms">
+        <form action="javascript:void(0)">
+            <table class="table1">
+                <tbody>
+                <tr>
+                    <td>商品编号</td>
+                    <td><input type="text" name="id"></td>
+                </tr>
+                <tr>
+                    <td>商品名称</td>
+                    <td><input type="text" name="name"></td>
+                </tr>
+                <tr>
+                    <td> 库存数量</td>
+                    <td><input type="text" name="num"></td>
+                </tr>
+                <tr>
+                    <td> 所在仓库</td>
+                    <td><input type="text" name="parentId"></td>
+                </tr>
+                <tr>
+                    <td colspan="2"><input type="submit" value="提交"></td>
+                </tr>
+                </tbody>
+            </table>
+        </form>
+        <div class="heng"></div>
+    </div>
+    <table class="table">
+        <thead>
+        <tr>
+            <th width="100px">商品编号</th>
+            <th width="100px">商品名称</th>
+            <th width="80px">库存数量</th>
+            <th width="150px">所在仓库</th>
+            <th width="100px">操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="none">
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td><a class="btn_del" href="javascript:void(0)">删除</a>
+                <a class="btn_upd" href="javascript:void(0)">修改</a></td>
+        </tr>
+        </tbody>
+    </table>
+
 <script>
-	
+
+    function f() {
+        var tbody1=document.getElementsByTagName("tbody")[0];
+        tbody1.onmouseover = function (event) {
+            var target = event.target;
+            if (target.nodeName == 'TD') {
+                target.parentNode.className = "hh"
+            }
+
+        };
+        tbody1.onmouseout = function (event) {
+            var target = event.target;
+            if (target.nodeName == 'TD') {
+                target.parentNode.className = ""
+            }
+        };
+    }
+    f();
+
+    var basicurl = "http://134.175.154.93:6677";
+    var tbody = document.getElementsByTagName("tbody")[1];
+    var btn_add = document.getElementById("btn_add");
+    (function () {
+        //开始添加
+        //获取tr
+
+        //开始更新数据
+        document.forms[0].onsubmit = function (event) {
+            //1. 校验有效性
+            //2.获取有效值
+            var name = document.querySelector("input[name=name]").value;
+            var num = document.querySelector("input[name=num]").value;
+            var parentId = document.querySelector("input[name=parentId]").value;
+            var id = document.querySelector("input[name=id]").value;
+            var url=basicurl + "/category/updateCategory";
+            var url1=basicurl + "/category/insertCategory";
+            var data;
+            if (id) {
+                data = "id=" + id + "&name=" + name + "&num=" + num+"&parentId="+parentId;
+                $.post(url,data,function (result) {
+                    initData();
+                    alert(result.message);
+                });
+            } else {
+                data = "name=" + name + "&num=" + num +"&parentId="+parentId;
+                $.post(url1,data,function (result) {
+                    initData();
+                    alert(result.message);
+                });
+            }
+            alert(data);
+
+             event.preventDefault();
+        };
+        //插入更新结束
+
+
+        //鼠标放上去当前行添加背景色
+        tbody.onmouseover = function (event) {
+            var target = event.target;
+            if (target.nodeName == 'TD') {
+                target.parentNode.className = "current"
+            }
+        };
+        tbody.onmouseout = function (event) {
+            var target = event.target;
+            if (target.nodeName == 'TD') {
+                target.parentNode.className = ""
+            }
+        };
+
+        btn_add.onclick = function () {
+            document.querySelector("input[name=name]").value = "";
+            document.querySelector("input[name=num]").value = "";
+            document.querySelector("input[name=id]").value = "";
+            document.querySelector("input[name=parentId]").value = "";
+            document.querySelector("input[name=Id]").value = "";
+        };
+        //添加结束
+
+        //获取后台数据开始
+        initData();
+        //初始化数据
+        function initData() {
+            var url = basicurl + "/category/findAllCategory";
+            $.get(url,function (response) {
+                Array.prototype.slice.call(tbody.children, 0).forEach(function (item,index) {
+                    if (index !== 0)  {//第一tr隐藏了,删除不了，因此要判断一下
+                        tbody.removeChild(item);
+
+                    }
+                });
+                response.data.forEach(function (item) {
+                    //创建新的一行
+                    var newTr = tbody.firstElementChild.cloneNode(true);
+                    newTr.children[0].innerText = item.id;
+                    newTr.children[1].innerText = item.name;
+                    newTr.children[2].innerText = item.num;
+                    newTr.children[3].innerText = item.parentId;
+                    //此时newTr的类名为none,默认隐藏，因此修改其类名为“空”
+                    newTr.className = "";
+                    //追加新tr
+                    tbody.appendChild(newTr);
+                })
+            });
+        }
+        tbody.onclick = function (event) {
+            if (event.target.nodeName === "A") {
+                //0. 获取当前行的id
+                switch (event.target.className) {
+                    case "btn_del":
+                        var id = event.target.parentNode.parentNode.children[0].innerText;
+                        var url =  basicurl + "/category/deleteByCategoryId";
+                        var data = "id=" + id;
+                        $.post(url,data,function (result) {
+                            initData();
+                            alert(result.message);
+                        });
+                        break;
+                    case "btn_upd":
+                        //1.将原有的信息放入表单中
+                        var id = event.target.parentNode.parentNode.children[0].innerText;
+                        var name = event.target.parentNode.parentNode.children[1].innerText;
+                        var num = event.target.parentNode.parentNode.children[2].innerText;
+                        var parentId = event.target.parentNode.parentNode.children[3].innerText;
+
+                        console.log(id,name,num,parentId);
+                        document.querySelector("input[name=id]").value = id;
+                        document.querySelector("input[name=name]").value = name;
+                        document.querySelector("input[name=num]").value = num;
+                        document.querySelector("input[name=parentId]").value = parentId;
+                        break;
+                }
+            }
+        };
+    })()//获取后台数据结束
+    // 为删除按钮绑定事件处理函数
 </script>
-<div class="category">
-	栏目管理
-</div>
